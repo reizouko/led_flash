@@ -56,21 +56,22 @@ root権限で、server.jsを実行してね。
 
 サーバを止めるには、Ctrl+CでOKだよ。
 
-## Copyright
+## 著作権
 
 LICENSEファイルを見てね。
 
 Copyright 2018 Plus Project
 
+
 ## Prerequisites
 
 1. You have Raspberry Pi with 40 pins
-2. You have a led illumination. it's much better you have two.
-3. You created a circuit to supply a current to one led with Pin12 (GPIO18) and the other led with Pin33(GPIO13)
+2. You have a led illumination. It's much better if you have two.
+3. You created a circuit to supply a current to one led with Pin12 (GPIO18) and the other led with Pin33 (GPIO13)
 
 ## Installation
 
-Prepare the latest nodejs and npm to your Raspberry Pi referring to:  
+Prepare latest Node.js and npm to your Raspberry Pi referring to:  
 https://github.com/nodesource/distributions/blob/master/README.md
 
     $ curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
