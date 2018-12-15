@@ -15,9 +15,25 @@
  */
 
 import React, { Component } from 'react';
+import FormControl from '@material-ui/core/FormControl';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import Radio from '@material-ui/core/Radio';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 
 class App extends Component {
-  changePattern(newPattern) {
+  constructor() {
+    super();
+    this.state = {
+      pattern: "Off"
+    };
+    this.changePattern = this.changePattern.bind(this);
+  }
+  
+  changePattern(event) {
+    const newPattern = event.target.value;
+    console.log(`change to ${newPattern}`);
     fetch("/flash", {
       method: "PUT",
       cache: "no-cache",
@@ -28,15 +44,36 @@ class App extends Component {
         pattern: newPattern
       })
     });
+    this.setState({ pattern: newPattern });
   }
   
   render() {
     return (
-      <div>
-        <button onClick={this.changePattern.bind(this, "Flash3")}>Flash</button>
-        <button onClick={this.changePattern.bind(this, "Parabola")}>Parabola</button>
-        <button onClick={this.changePattern.bind(this, "Off")}>Off</button>
-      </div>
+      <Grid container className="root">
+        <Grid item>
+          <Paper className="paper">
+            <FormControl component="fieldset">
+              <RadioGroup
+                aria-label="Flashing pattern"
+                onChange={this.changePattern}
+                name="pattern"
+                value={this.state.pattern}>
+                {
+                  [
+                    { label: "交互に点滅", value: "Half" },
+                    { label: "交互に3回ずつ点滅", value: "Flash3" },
+                    { label: "交互に緩やかに点滅", value: "Parabola" },
+                    { label: "つきっぱなし", value: "On" },
+                    { label: "消す", value: "Off" }
+                  ].map(pattern =>
+                      <FormControlLabel value={pattern.value} label={pattern.label} control={<Radio/>}/>
+                  )
+                }
+              </RadioGroup>
+            </FormControl>
+          </Paper>
+        </Grid>
+      </Grid>
     );
   }
 }

@@ -135,9 +135,9 @@ class Half extends FlashingPattern {
 }
 module.exports.Half = Half;
 
-class On extends FlashingPattern {
+class On {
   constructor(pin) {
-    super(pin, 1000, 0);
+    this.pin = pin;
   }
 
   start() {
@@ -149,9 +149,9 @@ class On extends FlashingPattern {
   }
 }
 
-class Off extends FlashingPattern {
+class Off {
   constructor(pin) {
-    super(pin, 1000, 0);
+    this.pin = pin;
   }
 
   start() {
