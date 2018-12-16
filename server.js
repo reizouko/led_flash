@@ -22,6 +22,7 @@ const {
   led2,
   open,
   Linear,
+  LinearAndKeep,
   SineWave,
   Parabola1,
   Parabola2,
@@ -51,9 +52,17 @@ app.put('/flash', (req, res) => {
   console.log(`pattern = ${req.body.pattern}`);
   
   switch (req.body.pattern) {
+    case "HalfSync":
+      led1Flash = new Half(led1, 2000, 0);
+      led2Flash = new Half(led2, 2000, 0);
+      break;
     case "Half":
       led1Flash = new Half(led1, 2000, 0);
       led2Flash = new Half(led2, 2000, 1000);
+      break;
+    case "HalfFast":
+      led1Flash = new Half(led1, 1000, 0);
+      led2Flash = new Half(led2, 1000, 500);
       break;
     case "Flash3":
       led1Flash = new Flash3(led1, 2000, 0);
@@ -62,6 +71,14 @@ app.put('/flash', (req, res) => {
     case "Parabola":
       led1Flash = new Parabola1(led1, 3000, 0);
       led2Flash = new Parabola1(led2, 3000, 1500);
+      break;
+    case "LinearAndKeepSync":
+      led1Flash = new LinearAndKeep(led1, 12000, 0);
+      led2Flash = new LinearAndKeep(led2, 12000, 0);
+      break;
+    case "LinearAndKeep":
+      led1Flash = new LinearAndKeep(led1, 12000, 0);
+      led2Flash = new LinearAndKeep(led2, 12000, 6000);
       break;
     case "On":
       led1Flash = new On(led1);

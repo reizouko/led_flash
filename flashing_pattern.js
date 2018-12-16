@@ -71,6 +71,26 @@ class Linear extends FlashingPattern {
   }
 }
 
+class LinearAndKeep extends FlashingPattern {
+  constructor(pin, period, offset) {
+    super(pin, period, offset);
+    this.changingPeriod = period / 4;
+    this.slope = pwmMax / this.changingPeriod;
+  }
+  
+  calc(time) {
+    if (time < this.changingPeriod) {
+      return this.slope * time;
+    } else if (time < this.changingPeriod * 2) {
+      return pwmMax;
+    } else if (time < this.changingPeriod * 3) {
+      return pwmMax * 3 - this.slope * time;
+    } else {
+      return 0;
+    }
+  }
+}
+
 class SineWave extends FlashingPattern {
   constructor(pin, period, offset) {
     super(pin, period, offset);
@@ -169,6 +189,7 @@ function close() {
 
 module.exports.open = open;
 module.exports.Linear = Linear;
+module.exports.LinearAndKeep = LinearAndKeep;
 module.exports.SineWave = SineWave;
 module.exports.Parabola1 = Parabola1;
 module.exports.Parabola2 = Parabola2;

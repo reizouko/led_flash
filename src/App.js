@@ -60,9 +60,13 @@ class App extends Component {
                 value={this.state.pattern}>
                 {
                   [
+                    { label: "同時に点滅", value: "HalfSync" },
                     { label: "交互に点滅", value: "Half" },
+                    { label: "交互に早く点滅", value: "HalfFast" },
                     { label: "交互に3回ずつ点滅", value: "Flash3" },
                     { label: "交互に緩やかに点滅", value: "Parabola" },
+                    { label: "同時に緩やかに点滅してしばらくキープ", value: "LinearAndKeepSync" },
+                    { label: "交互に緩やかに点滅してしばらくキープ", value: "LinearAndKeep" },
                     { label: "つきっぱなし", value: "On" },
                     { label: "消す", value: "Off" }
                   ].map(pattern =>
