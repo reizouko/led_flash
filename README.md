@@ -21,7 +21,9 @@ English follows Japanese.
 
 1. 40本ピンがあるラズパイをお手元に用意してね。
 2. そんで、5V以内で動作して、ただ光るだけのLED電飾も用意してね。2本あるといい感じだよ。
-3. 12番ピン(GPIO18)と33番ピン(GPIO12)それぞれに電流が流れると、それぞれのLED電飾がつくように回路を作ってね。
+3. 12番ピン(GPIO18)と33番ピン(GPIO12)それぞれに電流が流れると、それぞれのLED電飾がつくように回路を作ってね。こんな感じにね。
+
+![回路図](https://raw.githubusercontent.com/reizouko/led_flash/images/led_flash_circuit.png)
 
 ## インストール
 
@@ -65,36 +67,38 @@ Copyright 2018 Plus Project
 
 ## Prerequisites
 
-1. You have Raspberry Pi with 40 pins
+1. You have Raspberry Pi with 40 pins.
 2. You have a led illumination. It's much better if you have two.
-3. You created a circuit to supply a current to one led with Pin12 (GPIO18) and the other led with Pin33 (GPIO13)
+3. You created a circuit to supply a current to one led with Pin12 (GPIO18) and the other led with Pin33 (GPIO13). Like this:
+
+![Circuit](https://raw.githubusercontent.com/reizouko/led_flash/images/led_flash_circuit.png)
 
 ## Installation
 
-Prepare latest Node.js and npm to your Raspberry Pi referring to:  
+Install latest Node.js and npm to your Raspberry Pi referring to:  
 https://github.com/nodesource/distributions/blob/master/README.md
 
     $ curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
     $ sudo apt-get install -y nodejs
 
-clone repository
+Clone repository:
 
     $ git clone https://github.com/reizouko/led_flash.git
 
-install libraries
+Install libraries:
 
     $ cd led_flash
     $ npm install
 
 ## Usage
 
-Build client side  
-You have to rebuild when client side source code modified
+Build client side.  
+You have to rebuild when client side source code modified.
 
     $ npm run build
 
-Execute server.js with root privilege  
-Root is required for controlling GPIO PWM
+Execute server.js with root privilege.  
+Root is required for controlling GPIO PWM.
 
     $ sudo node server.js
 
@@ -104,6 +108,6 @@ You can stop the server with press Ctrl+C
 
 ## Copyright
 
-see ./LICENSE
+See ./LICENSE
 
 Copyright 2018 Plus Project
