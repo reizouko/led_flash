@@ -9,6 +9,10 @@ body {
 }
 
 .paper {
-  width: 400px;
+  width: 800px;
   padding: 20px;
+}
+
+.slider_area {
+  height: 48px;
 }

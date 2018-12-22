@@ -28,6 +28,7 @@ const {
   Parabola2,
   Flash3,
   Half,
+  SyncMusic,
   On,
   Off,
   close
@@ -45,40 +46,84 @@ app.use(express.static(path.join(__dirname, 'build')));
 let led1Flash;
 let led2Flash;
 
+const patterns = [
+  { patternLabel: "同時に点滅", patternName: "HalfSync", speedMin: 1, speedMax: 200, speedInit: 10 },
+  { patternLabel: "交互に点滅", patternName: "Half", speedMin: 1, speedMax: 200, speedInit: 10 },
+  { patternLabel: "交互に3回ずつ点滅", patternName: "Flash3", speedMin: 1, speedMax: 80, speedInit: 20 },
+  { patternLabel: "交互に緩やかに点滅その1", patternName: "Parabola1", speedMin: 1, speedMax: 100, speedInit: 10 },
+  { patternLabel: "交互に緩やかに点滅その2", patternName: "Parabola2", speedMin: 1, speedMax: 100, speedInit: 10 },
+  { patternLabel: "同時に緩やかに点滅してしばらくキープ", patternName: "LinearAndKeepSync", speedMin: 1, speedMax: 100, speedInit: 10 },
+  { patternLabel: "交互に緩やかに点滅してしばらくキープ", patternName: "LinearAndKeep", speedMin: 1, speedMax: 100, speedInit: 10 },
+  { patternLabel: "つきっぱなし", patternName: "On" },
+  { patternLabel: "消す", patternName: "Off" }
+];
+
+app.get('/patterns', (req, res) => {
+  res.json(patterns);
+});
+
 app.put('/flash', (req, res) => {
   led1Flash.stop();
   led2Flash.stop();
 
-  console.log(`pattern = ${req.body.pattern}`);
+  const targetPattern = patterns.find(pattern => pattern.patternName === req.body.pattern);
   
-  switch (req.body.pattern) {
+  if (!targetPattern) {
+    res.json({
+      "result": "NG"
+    });
+    return;
+  }
+  
+  let speed = parseInt(req.body.speed);
+  if (isNaN(speed)) {
+    if (targetPattern.speedMax) {
+      speed = parseInt((targetPattern.speedMin + targetPattern.speedMax) / 2);
+    }
+  } else if (speed < targetPattern.speedMin) {
+    speed = targetPattern.speedMin;
+  } else if (speed > targetPattern.speedMax) {
+    speed = targetPattern.speedMax;
+  }
+
+  console.log(`pattern = ${targetPattern.patternName}, speed = ${speed}`);
+  
+  let period;
+  switch (targetPattern.patternName) {
     case "HalfSync":
-      led1Flash = new Half(led1, 2000, 0);
-      led2Flash = new Half(led2, 2000, 0);
+      period = 30000 / speed;
+      led1Flash = new Half(led1, period, 0);
+      led2Flash = new Half(led2, period, 0);
       break;
     case "Half":
-      led1Flash = new Half(led1, 2000, 0);
-      led2Flash = new Half(led2, 2000, 1000);
-      break;
-    case "HalfFast":
-      led1Flash = new Half(led1, 1000, 0);
-      led2Flash = new Half(led2, 1000, 500);
+      period = 30000 / speed;
+      led1Flash = new Half(led1, period, 0);
+      led2Flash = new Half(led2, period, period / 2);
       break;
     case "Flash3":
-      led1Flash = new Flash3(led1, 2000, 0);
-      led2Flash = new Flash3(led2, 2000, 1000);
+      period = 40000 / speed;
+      led1Flash = new Flash3(led1, period, 0);
+      led2Flash = new Flash3(led2, period, period / 2);
       break;
-    case "Parabola":
-      led1Flash = new Parabola1(led1, 3000, 0);
-      led2Flash = new Parabola1(led2, 3000, 1500);
+    case "Parabola1":
+      period = 30000 / speed;
+      led1Flash = new Parabola1(led1, period, 0);
+      led2Flash = new Parabola1(led2, period, period / 2);
+      break;
+    case "Parabola2":
+      period = 30000 / speed;
+      led1Flash = new Parabola2(led1, period, 0);
+      led2Flash = new Parabola2(led2, period, period / 2);
       break;
     case "LinearAndKeepSync":
-      led1Flash = new LinearAndKeep(led1, 12000, 0);
-      led2Flash = new LinearAndKeep(led2, 12000, 0);
+      period = 60000 / speed;
+      led1Flash = new LinearAndKeep(led1, period, 0);
+      led2Flash = new LinearAndKeep(led2, period, 0);
       break;
     case "LinearAndKeep":
-      led1Flash = new LinearAndKeep(led1, 12000, 0);
-      led2Flash = new LinearAndKeep(led2, 12000, 6000);
+      period = 60000 / speed;
+      led1Flash = new LinearAndKeep(led1, period, 0);
+      led2Flash = new LinearAndKeep(led2, period, period / 2);
       break;
     case "On":
       led1Flash = new On(led1);
@@ -88,7 +133,7 @@ app.put('/flash', (req, res) => {
       led1Flash = new Off(led1);
       led2Flash = new Off(led2);
       break;
-}
+  }
 
   led1Flash.start();
   led2Flash.start();

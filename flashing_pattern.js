@@ -153,7 +153,36 @@ class Half extends FlashingPattern {
     return time < this.half ? pwmMax : 0;
   }
 }
-module.exports.Half = Half;
+
+class SyncMusic extends FlashingPattern {
+  constructor(pin) {
+    super(pin, 163000, 0);
+    this.linear1 = new Linear(-1, 4000, 0);
+    this.half = new Half(-1, 200, 0);
+    this.linearAndKeep = new LinearAndKeep(-1, 12000, 0);
+    this.linear2 = new Linear(-1, 5400, 0);
+  }
+  
+  calc(time) {
+    if (time < 3600) {
+      return 0;
+    } else if (time < 11600) {
+      return this.linear1.calc((time - 3600) % 4000);
+    } else if (time < 14000) {
+      return 0;
+    } else if (time < 16000) {
+      return this.linear1.calc((time - 14000) % 4000);
+    } else if (time < 18500) {
+      return this.half.calc((time - 16000) % 200);
+    } else if (time < 20500) {
+      return pwmMax;
+    } else if (time < 23200) {
+      return this.linear2.calc((time - 17800) % 5400);
+    } else {
+      return pwmMax;
+    }
+  }
+}
 
 class On {
   constructor(pin) {
@@ -194,5 +223,7 @@ module.exports.SineWave = SineWave;
 module.exports.Parabola1 = Parabola1;
 module.exports.Parabola2 = Parabola2;
 module.exports.Flash3 = Flash3;
+module.exports.Half = Half;
+module.exports.SyncMusic = SyncMusic;
 module.exports.On = On;
 module.exports.close = close;

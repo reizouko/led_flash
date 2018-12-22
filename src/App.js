@@ -15,25 +15,65 @@
  */
 
 import React, { Component } from 'react';
+import { fromJS } from 'immutable';
 import FormControl from '@material-ui/core/FormControl';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import Slider from '@material-ui/lab/Slider';
+import Typography from '@material-ui/core/Typography';
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      pattern: "Off"
+      currentPatternName: "Off",
+      patterns: []
     };
     this.changePattern = this.changePattern.bind(this);
   }
   
+  componentDidMount() {
+    fetch("/patterns").then(response => response.json()).then(data => {
+      const patterns = data.map(pattern => {
+        if (pattern.speedInit) {
+          pattern.currentSpeed = pattern.speedInit;
+          delete pattern.speedInit;
+        }
+        return pattern;
+      });
+      this.setState({
+        patterns: patterns
+      });
+    });
+  }
+  
   changePattern(event) {
-    const newPattern = event.target.value;
-    console.log(`change to ${newPattern}`);
+    const newPatternName = event.target.value;
+    console.log(`change to ${newPatternName}`);
+    this.sendPatternAndSpeed(newPatternName, this.state.patterns.find(pattern => pattern.patternName === newPatternName).currentSpeed);
+    this.setState({ currentPatternName: newPatternName });
+  }
+  
+  changeSliderValue(patternName, newSpeed) {
+    const newPatterns = fromJS(this.state.patterns).map(pattern =>
+      pattern.get("patternName") === patternName ? pattern.set("currentSpeed", newSpeed) : pattern
+    ).toJS();
+    this.setState({
+      patterns: newPatterns
+    });
+  }
+  changeSpeed(patternName) {
+    if (this.state.currentPatternName === patternName) {
+      const speed = this.state.patterns.find(pattern => pattern.patternName === patternName).currentSpeed;
+      console.log(`change speed of ${patternName} to ${speed}`);
+      this.sendPatternAndSpeed(patternName, speed);
+    }
+  }
+  
+  sendPatternAndSpeed(patternName, speed) {
     fetch("/flash", {
       method: "PUT",
       cache: "no-cache",
@@ -41,10 +81,10 @@ class App extends Component {
           "Content-Type": "application/json; charset=utf-8"
       },
       body: JSON.stringify({
-        pattern: newPattern
+        pattern: patternName,
+        speed: speed
       })
     });
-    this.setState({ pattern: newPattern });
   }
   
   render() {
@@ -52,29 +92,40 @@ class App extends Component {
       <Grid container className="root">
         <Grid item>
           <Paper className="paper">
-            <FormControl component="fieldset">
-              <RadioGroup
-                aria-label="Flashing pattern"
-                onChange={this.changePattern}
-                name="pattern"
-                value={this.state.pattern}>
+            <Grid container spacing={16}>
+              <Grid item xs={6}>
+                <FormControl component="fieldset">
+                  <RadioGroup
+                    aria-label="Flashing pattern"
+                    onChange={this.changePattern}
+                    name="pattern"
+                    value={this.state.currentPatternName}>
+                    {
+                      this.state.patterns.map(pattern =>
+                        <FormControlLabel value={pattern.patternName} label={pattern.patternLabel} control={<Radio/>}/>
+                      )
+                    }
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography>点滅の速さ</Typography>
                 {
-                  [
-                    { label: "同時に点滅", value: "HalfSync" },
-                    { label: "交互に点滅", value: "Half" },
-                    { label: "交互に早く点滅", value: "HalfFast" },
-                    { label: "交互に3回ずつ点滅", value: "Flash3" },
-                    { label: "交互に緩やかに点滅", value: "Parabola" },
-                    { label: "同時に緩やかに点滅してしばらくキープ", value: "LinearAndKeepSync" },
-                    { label: "交互に緩やかに点滅してしばらくキープ", value: "LinearAndKeep" },
-                    { label: "つきっぱなし", value: "On" },
-                    { label: "消す", value: "Off" }
-                  ].map(pattern =>
-                      <FormControlLabel value={pattern.value} label={pattern.label} control={<Radio/>}/>
+                  this.state.patterns.map(pattern => pattern.speedMax ?
+                    <div className="slider_area">
+                      <Slider
+                        min={pattern.speedMin}
+                        max={pattern.speedMax}
+                        value={pattern.currentSpeed}
+                        disabled={this.state.currentPatternName !== pattern.patternName}
+                        onDragEnd={this.changeSpeed.bind(this, pattern.patternName)}
+                        onChange={(event, value) => this.changeSliderValue(pattern.patternName, value)}/>
+                    </div> : <div className="slider_area"></div>
                   )
                 }
-              </RadioGroup>
-            </FormControl>
+              </Grid>
+            </Grid>
+            <audio src="./whitesnow.mp3" preload="auto" loop="true" id="music_whitesnow"/>
           </Paper>
         </Grid>
       </Grid>
