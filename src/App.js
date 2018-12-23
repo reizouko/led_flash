@@ -28,11 +28,17 @@ import Typography from '@material-ui/core/Typography';
 class App extends Component {
   constructor() {
     super();
+    this.musics = [
+      { label: "White snow", filename: "whitesnow.mp3", id: "whitesnow" },
+      { label: "きよしこの夜", filename: "kiyosikonoyoru.mp3", id: "kiyosikonoyoru" }
+    ];
     this.state = {
       currentPatternName: "Off",
-      patterns: []
+      patterns: [],
+      currentMusic: "Off"
     };
     this.changePattern = this.changePattern.bind(this);
+    this.changeMusic = this.changeMusic.bind(this);
   }
   
   componentDidMount() {
@@ -87,11 +93,29 @@ class App extends Component {
     });
   }
   
+  changeMusic(event) {
+    const newMusic = event.target.value;
+    console.log(`change music to ${newMusic}`);
+    const currentMusic = this.state.currentMusic;
+    if (currentMusic !== "Off") {
+      document.getElementById(currentMusic).pause();
+    }
+    if (newMusic !== "Off") {
+      const targetAudio = document.getElementById(newMusic);
+      targetAudio.currentTime = 0;
+      targetAudio.play();
+    }
+    this.setState({ currentMusic: newMusic });
+  }
+  
   render() {
     return (
-      <Grid container className="root">
-        <Grid item>
+      <Grid container className="root" spacing={32}>
+        <Grid item xs={8}>
           <Paper className="paper">
+            <Typography variant="h5" component="h3">
+              点滅パターン
+            </Typography>
             <Grid container spacing={16}>
               <Grid item xs={6}>
                 <FormControl component="fieldset">
@@ -102,7 +126,7 @@ class App extends Component {
                     value={this.state.currentPatternName}>
                     {
                       this.state.patterns.map(pattern =>
-                        <FormControlLabel value={pattern.patternName} label={pattern.patternLabel} control={<Radio/>}/>
+                        <FormControlLabel value={pattern.patternName} label={pattern.patternLabel} control={<Radio color="primary"/>}/>
                       )
                     }
                   </RadioGroup>
@@ -125,8 +149,51 @@ class App extends Component {
                 }
               </Grid>
             </Grid>
-            <audio src="./whitesnow.mp3" preload="auto" loop="true" id="music_whitesnow"/>
           </Paper>
+        </Grid>
+        <Grid item xs={4}>
+          <Paper className="paper">
+            <Typography variant="h5" component="h3">
+              音楽
+            </Typography>
+            <Grid container spacing={16}>
+              <Grid item>
+                <FormControl component="fieldset">
+                  <RadioGroup
+                    aria-label="Music"
+                    onChange={this.changeMusic}
+                    name="music"
+                    value={this.state.currentMusic}>
+                    {
+                      this.musics.map(music =>
+                        <FormControlLabel value={music.id} label={music.label} control={<Radio/>}/>
+                      )
+                    }
+                    <FormControlLabel value="Off" label="Off" control={<Radio/>}/>
+                  </RadioGroup>
+                </FormControl>
+                {
+                  this.musics.map(music =>
+                    <audio src={music.filename} preload="auto" loop="true" id={music.id}/>
+                  )
+                }
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="h6">
+            音楽素材提供
+          </Typography>
+          <p>
+            Music-Note.jp<br />
+            URL：<a href="http://www.music-note.jp/" target="_blank">http://www.music-note.jp/</a><br />
+            運営：株式会社ピクセル<br />
+            URL：<a href="http://pixel-co.com/" target="_blank">http://pixel-co.com/</a><br />
+          </p>
+          <p>
+            ポケットサウンド – <a href="https://pocket-se.info/" target="_blank">https://pocket-se.info/</a>
+          </p>
         </Grid>
       </Grid>
     );

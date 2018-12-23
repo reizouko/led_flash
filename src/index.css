@@ -5,14 +5,17 @@ body {
 }
 
 .root {
-  margin: 20px;
+  padding: 20px;
 }
 
 .paper {
-  width: 800px;
   padding: 20px;
 }
 
 .slider_area {
   height: 48px;
+}
+
+audio {
+  display: none;
 }
